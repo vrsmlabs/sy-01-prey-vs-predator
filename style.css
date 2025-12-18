@@ -1,0 +1,417 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; /* bauhaus preference for helvetica */
+  width: 100%;
+  height: 100%;
+  background-color: #f0f0f0; /* slight off-white for canvas background fallback */
+}
+
+canvas {
+  display: block;
+}
+
+/* ui layer */
+#ui-layer {
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: none; /* default pass-through */
+}
+
+/* generic pointer events enabler */
+.pointer-events-auto {
+  pointer-events: auto;
+}
+
+/* typography layout utilities */
+.text-uppercase { text-transform: uppercase; }
+.font-bold { font-weight: 700; }
+.flex-row { display: flex; flex-direction: row; align-items: center; }
+.flex-col { display: flex; flex-direction: column; }
+.gap-sm { gap: 8px; }
+.gap-md { gap: 16px; }
+
+/* stats card minimalist plain card */
+.stats-card {
+  background: rgba(128, 128, 128, 0.05); /* very low opacity neutral */
+  padding: 16px;
+  border-radius: 0; /* ensure sharp edges */
+  box-shadow: none; /* removed shadow for cleaner look */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 140px;
+  backdrop-filter: blur(2px);
+  border: 1px solid rgba(128, 128, 128, 0.1); /* subtle border */
+}
+
+.stat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px; /* slightly smaller text */
+  letter-spacing: 0.8px; /* more pronounced letter spacing */
+  color: inherit; /* inherit from parent set by js based on theme */
+  text-transform: uppercase; /* bauhaus typography */
+}
+
+.stat-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: bold; /* make labels bold */
+}
+
+.status-dot {
+  width: 10px; /* slightly larger dot */
+  height: 10px;
+  border-radius: 0; /* square dots for bauhaus */
+  display: inline-block;
+  border: 1px solid currentColor; /* border matches text color */
+}
+
+.dot-prey { background-color: #00c000; } /* dark green */
+.dot-predator { background-color: #FF0000; } /* red */
+
+/* controls bottom center */
+.controls-container {
+  display: flex;
+  gap: 16px; /* reduced gap since container is gone */
+  background: transparent; /* no container background */
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  border: none;
+}
+
+.control-btn {
+  background: transparent; /* no solid background */
+  border: 1px solid currentColor; /* border matches text color */
+  cursor: pointer;
+  color: inherit; /* inherit from body/theme */
+  transition: transform 0.2s, background 0.2s, color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px; /* smaller padding */
+  width: 36px; /* smaller width */
+  height: 36px; /* smaller height */
+  border-radius: 0; /* square buttons */
+}
+
+.control-btn:hover {
+  background: rgba(128, 128, 128, 0.2); /* subtle hover */
+  transform: translateY(-2px);
+}
+
+.control-btn i {
+  font-size: 18px; /* smaller icon */
+}
+
+/* settings top right */
+.settings-trigger {
+  cursor: pointer;
+  font-size: 18px; /* smaller icon */
+  color: inherit;
+  background: transparent;
+  padding: 0; /* reset padding */
+  width: 36px; /* fixed width */
+  height: 36px; /* fixed height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0; /* sharp edges for bauhaus */
+  box-shadow: none;
+  transition: background 0.2s;
+  border: 1px solid currentColor; /* add a border for definition */
+}
+
+.settings-trigger:hover {
+  background: rgba(128, 128, 128, 0.2);
+}
+
+.settings-panel {
+  display: none; /* hidden by default */
+  position: absolute;
+  top: 70px;
+  right: 24px;
+  width: 280px;
+  background: #fff;
+  padding: 24px;
+  border-radius: 0; /* sharp edges */
+  box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+  z-index: 1000;
+  border: 1px solid #eee;
+  border-top: 4px solid #FF0000; /* red accent */
+}
+
+/* dropdown triangle */
+.settings-panel::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  right: 10px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid #FF0000;
+}
+
+.settings-panel.active {
+  display: block;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.setting-header {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #000;
+  margin-bottom: 16px;
+  border-bottom: 2px solid #000;
+  padding-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.setting-group {
+  margin-bottom: 16px;
+}
+
+.setting-label {
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  color: #666;
+  display: block;
+}
+
+.setting-slider {
+  width: 100%;
+  -webkit-appearance: none;
+  height: 4px;
+  background: rgba(128, 128, 128, 0.3);
+  outline: none;
+  border-radius: 2px;
+}
+
+.setting-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: currentColor;
+  cursor: pointer;
+  border-radius: 0; /* square thumb for bauhaus */
+}
+
+.setting-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: currentColor;
+  cursor: pointer;
+  border-radius: 0; /* square thumb for bauhaus */
+  border: none;
+}
+
+.setting-slider:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.setting-slider:disabled::-webkit-slider-thumb {
+  cursor: not-allowed;
+  background: #ccc;
+}
+
+.setting-slider:disabled::-moz-range-thumb {
+  cursor: not-allowed;
+  background: #ccc;
+}
+
+/* footer pax red */
+.footer-link {
+  text-decoration: none;
+  color: #6e6e6e;
+  font-weight: bold;
+  font-size: 12px;
+  letter-spacing: 1px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.footer-link:hover {
+  border-bottom: 2px solid #FF0000; /* red underline on hover */
+}
+
+.footer-arrow {
+  font-size: 14px;
+  transition: transform 0.2s;
+}
+
+.footer-link:hover .footer-arrow {
+  transform: translate(2px, -2px); /* diagonal movement */
+}
+
+/* cinematic overlay and about overlay */
+.cinematic-overlay {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #f0f0f0; /* opaque background */
+  z-index: 2000;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  pointer-events: auto; /* enable clicks */
+}
+
+.cinematic-overlay.visible {
+  display: flex;
+  opacity: 1;
+}
+
+.about-content {
+    max-width: 600px;
+    padding: 40px;
+    text-align: center;
+}
+
+.about-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+    border-bottom: 2px solid currentColor;
+    padding-bottom: 16px;
+}
+
+.about-header h2 {
+    margin: 0;
+    font-size: 24px;
+    letter-spacing: 2px;
+    font-weight: 900;
+}
+
+.icon-btn {
+    background: transparent;
+    border: 1px solid currentColor;
+    color: inherit;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 50%;
+    font-size: 16px;
+    transition: transform 0.2s;
+}
+
+.icon-btn:hover {
+    transform: scale(1.1);
+}
+
+.academy-title {
+  font-size: 56px; /* larger title */
+  font-weight: 900; /* bolder */
+  letter-spacing: 4px; /* more pronounced spacing */
+  margin-bottom: 24px;
+  color: #111;
+  text-transform: uppercase; /* all caps for bauhaus */
+}
+
+.academy-stat-label {
+  font-size: 14px; /* slightly larger */
+  text-transform: uppercase;
+  letter-spacing: 2px; /* more pronounced spacing */
+  color: #666;
+  font-weight: bold; /* bold for emphasis */
+}
+
+.academy-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 60px; /* increased gap */
+  text-align: center;
+  margin-top: 60px; /* increased margin */
+}
+
+.academy-stat-value {
+    font-size: 40px;
+    font-weight: 100;
+    margin-bottom: 10px;
+}
+
+.academy-stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* blink animation */
+.blink-text {
+  animation: blinker 2s linear infinite;
+}
+
+@keyframes blinker {
+  50% { opacity: 0; }
+}
+
+/* mobile responsiveness */
+@media (max-width: 768px) {
+  /* cinematic end screen */
+  .academy-title {
+    font-size: 32px; /* smaller title */
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+
+  .academy-stats {
+    grid-template-columns: 1fr; /* stack vertically */
+    gap: 32px;
+    margin-top: 32px;
+  }
+
+  .academy-stat-value {
+    font-size: 32px; /* smaller values */
+  }
+
+  .academy-stat-label {
+    font-size: 12px;
+  }
+
+  /* about modal */
+  .about-content {
+    padding: 24px;
+    max-width: 90%;
+  }
+
+  .about-header h2 {
+    font-size: 20px;
+  }
+  
+  /* controls */
+  .controls-container {
+      bottom: 80px; /* move up slightly to avoid overlap with bottom bar if any */
+  }
+}
