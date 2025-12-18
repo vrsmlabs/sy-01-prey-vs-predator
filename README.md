@@ -40,7 +40,7 @@ Core logic is organized in the `js/` directory:
 - `Config.js`: Simulation parameters, theme settings, and balancing rules.  
 - `Simulation.js`: Core state management.  
 - `Agent.js`, `Prey.js`, `Predator.js`: Entity logic.  
-- `UIManager.js`, `SoundManager.js`: Interface and audio handling.
+- `UIManager.js`, `SoundManager.js`: Interface and audio handling. 
 
 ## License
 
