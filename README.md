@@ -28,10 +28,10 @@ To run the simulation locally, serve the project root via a local web server to 
 ## Simulation Previews
 
 ### Autonomous Run
-https://github.com/vrsmlabs/sy-01-prey-vs-predator/blob/main/preview/autonom.mp4
+[https://github.com/vrsmlabs/sy-01-prey-vs-predator/blob/main/preview/autonom.mp4](https://github.com/user-attachments/assets/ed78935e-59cf-4935-808d-aaa14d141f45)
 
 ### Interactive Exploration
-https://github.com/vrsmlabs/sy-01-prey-vs-predator/blob/main/preview/interactive.mp4
+[https://github.com/vrsmlabs/sy-01-prey-vs-predator/blob/main/preview/interactive.mp4](https://github.com/user-attachments/assets/b894e6b3-0bd4-4561-9518-5607d298859c)
 
 ## Development
 
