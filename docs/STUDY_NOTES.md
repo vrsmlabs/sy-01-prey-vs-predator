@@ -32,6 +32,7 @@ The simulation consists of two distinct agent classes, each with its own DNA (ge
 
 ### 2.2 Environmental Physics
 *   **Movement:** Physics-based movement using velocity and acceleration vectors (steering behaviors).
+*   **Obstacles:** Physical barriers that agents must navigate around. Agents use repulsion forces to avoid collision, adding spatial complexity to the environment.
 *   **Optimization:** Spatial calculations utilize squared-distance checks to minimize CPU overhead on large populations.
 *   **Boundaries:** The world is a closed 2D plane. Agents bounce off edges.
 *   **Time:** The simulation runs in real-time, tracked in seconds.
@@ -153,8 +154,8 @@ This introduces a rare prey that can kill predators indirectly, which may shift 
 2. **Stronger Reproductive Interdependence**
 Another direction is making prey and predator birth rate logic more mutually dependent across time, using gradual pressure accumulation instead of a fast ratio correction. This could shape longer population cycles and make stability more sensitive to sustained imbalance.
 
-3. **Collidable Obstacles and Avoidance Behavior**
-Introducing static obstacles could reshape pathing and pursuit efficiency. Agents could gain simple avoidance behavior and the system could be observed for emergent corridor use, choke points, and spatial clustering dynamics.
+~~3. **Collidable Obstacles and Avoidance Behavior**
+Introducing static obstacles could reshape pathing and pursuit efficiency. Agents could gain simple avoidance behavior and the system could be observed for emergent corridor use, choke points, and spatial clustering dynamics.~~
 
 4. **Extended Mutation and Rarity Controls**
 Add trait rarity controls so that certain phenotypes emerge only after a generation threshold and with low probability. This can create phase shifts in the ecosystem where new behaviors appear later and change the equilibrium.

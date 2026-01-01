@@ -8,6 +8,8 @@ class Predator extends Agent {
     this.starvationTime = random(Config.sim.predator.starvationTime.min, Config.sim.predator.starvationTime.max);
     this.huntCount = 0;
     this.huntHistory = [];
+    this.isHunting = true; // default state
+    this.cooldownTimer = 0;
     this.stamina = Config.sim.predator.stamina.max;
     this.color = Config.theme[Config.theme.current].agents.predator;
   }
@@ -20,9 +22,56 @@ class Predator extends Agent {
     };
   }
 
-  update(preyArray, predators) {
+  update(preyArray, predators, obstacles) {
+    // obstacle interaction
+    if (obstacles && obstacles.length > 0) {
+        let avoidForce = createVector(0,0);
+        let count = 0;
+        
+        for(let obs of obstacles) {
+            // physical collision
+            obs.checkCollision(this);
+            
+            // strong repulsion (fear of walls)
+            let force = obs.getRepulsion(this, 120); // detection range
+            if (force.mag() > 0) {
+                avoidForce.add(force);
+                count++;
+            }
+        }
+        
+        if (count > 0) {
+            avoidForce.div(count);
+            // fix: explicitly check undefined to allow 0.0 value
+            let avoidanceStr = Config.sim.obstacles.predatorAvoidance;
+            if (avoidanceStr === undefined) avoidanceStr = 5.0;
+            
+            avoidForce.setMag(avoidanceStr);
+            this.applyForce(avoidForce);
+        }
+    }
+
+    // Cooldown timer logic
+    if (this.cooldownTimer > 0) {
+        this.cooldownTimer -= deltaTime / 1000;
+        if (this.cooldownTimer <= 0) {
+            this.cooldownTimer = 0;
+            this.isHunting = true;
+        } else {
+            this.isHunting = false;
+        }
+    }
+
     this.hunt(preyArray);
     super.update();
+
+    // immortality check
+    if (obstacles && obstacles.length > 0) {
+        // Extend lifespan (allow age to progress, but prevent death)
+        this.lifespan += deltaTime / 1000;
+        // Shift meal time (prevent starvation)
+        this.lastMealTime += deltaTime / 1000;
+    }
 
     // lifespan death
     if (simulation.timer - this.birthTime > this.lifespan) {
@@ -37,6 +86,12 @@ class Predator extends Agent {
   }
 
   hunt(preyArray) {
+    // Cooldown active - just wander
+    if (!this.isHunting) {
+        this.velocity.limit(this.dna.speed);
+        return;
+    }
+
     // scarcity logic. stop hunting if prey are scarce (conservation)
 // prevents overhunting when prey pop is very low relative to preds
     if (Config.dynamic && Config.dynamic.enabled && Config.dynamic.predator.scarcity && Config.dynamic.predator.scarcity.enabled) {
@@ -117,9 +172,25 @@ class Predator extends Agent {
     // add to history
     this.huntHistory.push(simulation.timer);
     // keep only last 5 (eventho we filter by time anyway)
-    if (this.huntHistory.length > 5) this.huntHistory.shift();
+    if (this.huntHistory.length > 20) this.huntHistory.shift(); // increased buffer for safety
     
+    this.checkHuntingCooldown();
     this.checkReproduction();
+  }
+
+  checkHuntingCooldown() {
+      if (!Config.sim.predator.hunting) return;
+      
+      const now = simulation.timer;
+      const cfg = Config.sim.predator.hunting;
+      
+      // Check eats within window
+      const recentEats = this.huntHistory.filter(t => (now - t) <= cfg.eatWindowDuration);
+      
+      if (recentEats.length >= cfg.maxEatsInWindow) {
+          this.isHunting = false;
+          this.cooldownTimer = cfg.cooldownDuration;
+      }
   }
 
   checkReproduction() {
@@ -178,6 +249,11 @@ class Predator extends Agent {
                 chance *= dyn.lowRatioBuff;
             }
         }
+    }
+
+    // Obstacle mode growth boost
+    if (window.simulation && window.simulation.obstacles && window.simulation.obstacles.length > 0 && Config.sim.obstacles && Config.sim.obstacles.growthMultiplier) {
+        chance *= Config.sim.obstacles.growthMultiplier;
     }
 
     if (random() < chance) {

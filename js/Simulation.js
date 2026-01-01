@@ -20,6 +20,12 @@ class Simulation {
     // reproduction lock states
     this.preyReproductionLocked = false;
     this.predatorReproductionLocked = false;
+
+    // obstacles
+    this.obstacles = [];
+    this.nextObstacleSpawn = -1; // next season start
+    this.obstaclePeriodEnd = -1; // current season end
+    this.nextIndividualSpawn = -1; // next single spawn
   }
 
   init() {
@@ -74,6 +80,11 @@ class Simulation {
     
     this.preyReproductionLocked = false;
     this.predatorReproductionLocked = false;
+
+    this.obstacles = [];
+    this.nextObstacleSpawn = -1;
+    this.obstaclePeriodEnd = -1;
+    this.nextIndividualSpawn = -1;
     
     // re-roll samples on reset
     this.initializeSamples();
@@ -135,14 +146,68 @@ class Simulation {
     if (this.prey.length > this.peakPrey) this.peakPrey = this.prey.length;
     if (this.predators.length > this.peakPredator) this.peakPredator = this.predators.length;
 
+    // manage obstacles
+    if (Config.sim.obstacles) {
+        const obsCfg = Config.sim.obstacles;
+        
+        // Automatic Spawning Logic (Controlled by enabled flag)
+        if (obsCfg.enabled) {
+            // init start time if not set
+            if (this.nextObstacleSpawn === -1 && this.obstaclePeriodEnd === -1) {
+                 this.nextObstacleSpawn = obsCfg.startTime; 
+            }
+
+            // check start period (season)
+            if (this.nextObstacleSpawn !== -1 && this.timer >= this.nextObstacleSpawn && this.obstaclePeriodEnd === -1) {
+                 let duration = random(obsCfg.periodDuration.min, obsCfg.periodDuration.max);
+                 this.obstaclePeriodEnd = this.timer + duration;
+                 this.nextObstacleSpawn = -1; 
+                 this.nextIndividualSpawn = this.timer; 
+            }
+
+            // inside active period
+            if (this.obstaclePeriodEnd !== -1) {
+                 if (this.timer >= this.nextIndividualSpawn && this.obstacles.length < obsCfg.maxCount) {
+                     let padding = 100;
+                     let lifespan = random(obsCfg.individualLifespan.min, obsCfg.individualLifespan.max);
+                     
+                     this.obstacles.push(new Obstacle(
+                         random(padding, width - padding), 
+                         random(padding, height - padding),
+                         lifespan
+                     ));
+                     
+                     let rate = random(obsCfg.spawnRate.min, obsCfg.spawnRate.max);
+                     this.nextIndividualSpawn = this.timer + rate;
+                 }
+                 
+                 if (this.timer >= this.obstaclePeriodEnd) {
+                     this.obstaclePeriodEnd = -1;
+                     this.nextIndividualSpawn = -1;
+                     let interval = random(obsCfg.spawnInterval.min, obsCfg.spawnInterval.max);
+                     this.nextObstacleSpawn = this.timer + interval;
+                 }
+            }
+        }
+        
+        // Lifecycle Management (Runs ALWAYS regardless of enabled flag)
+        for (let i = this.obstacles.length - 1; i >= 0; i--) {
+            if (this.obstacles[i].lifespan && this.obstacles[i].lifespan !== Infinity) {
+                if (this.timer - this.obstacles[i].birthTime > this.obstacles[i].lifespan) {
+                    this.obstacles.splice(i, 1);
+                }
+            }
+        }
+    }
+
     // update prey
     for (let i = this.prey.length - 1; i >= 0; i--) {
-      this.prey[i].update(this.prey, this.predators);
+      this.prey[i].update(this.prey, this.predators, this.obstacles);
     }
 
     // update predators
     for (let i = this.predators.length - 1; i >= 0; i--) {
-      this.predators[i].update(this.prey, this.predators);
+      this.predators[i].update(this.prey, this.predators, this.obstacles);
     }
 
     // check extinction
@@ -217,8 +282,39 @@ class Simulation {
     if (this.state === 1) return; // title handled in sketch.js
     
     // display agents
+    for (let o of this.obstacles) o.display();
     for (let p of this.prey) p.display();
     for (let p of this.predators) p.display();
+  }
+
+  addObstacle(x, y) {
+    this.obstacles.push(new Obstacle(x, y, Infinity));
+  }
+
+  removeObstacleGlobal() {
+      if (this.obstacles.length > 0) {
+          // remove random one
+          const index = floor(random(this.obstacles.length));
+          this.obstacles.splice(index, 1);
+      }
+  }
+
+  removeObstacleAt(x, y) {
+    const mousePos = createVector(x, y);
+    for (let i = this.obstacles.length - 1; i >= 0; i--) {
+        const obs = this.obstacles[i];
+        // radius is roughly size/2. add margin for easier clicking
+        if (obs.position.dist(mousePos) < (obs.size / 2) + 20) {
+            this.obstacles.splice(i, 1);
+            return; // remove one at a time
+        }
+    }
+  }
+
+  removeLastObstacle() {
+      if (this.obstacles.length > 0) {
+          this.obstacles.pop();
+      }
   }
 
   addPrey(x, y, dna = null, ignoreSamples = false) {

@@ -14,7 +14,7 @@ Detailed system notes are available in the `docs/` directory:
 ## Quick Start
 
 ### Web Experience
-The simulation is accessible at [**sy01.pax.red**](https://sy01.pax.red).
+The simulation is accessible at [**sy01.pax.red**](https://sy01.pax.red). Fully responsive on Desktop, Tablet, and Mobile devices.
 
 ### Local Execution
 To run the simulation locally, serve the project root via a local web server to ensure proper asset loading.

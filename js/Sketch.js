@@ -134,8 +134,22 @@ function mousePressed() {
     simulation.start();
     soundManager.playTap(); 
   } else if (simulation.state === 2 && !simulation.isPaused) {
+    // check for 'o' + click (obstacle)
+    if (keyIsDown(79)) { // 79 is 'o' key
+        if (mouseButton === RIGHT) {
+            simulation.removeLastObstacle();
+            // soundManager.playKill(); // optional
+        } else {
+            simulation.addObstacle(mouseX, mouseY);
+            soundManager.playSpawn();
+        }
+        
+        // prevent tap/long press logic
+        touchStartTime = 0;
+        longPressTriggered = true;
+    } 
     // check for a + click instant predator spawn
-    if (keyIsDown(65)) { // 65 is 'a' key
+    else if (keyIsDown(65)) { // 65 is 'a' key
         simulation.addPredator(mouseX, mouseY);
         soundManager.playSpawn();
         

@@ -33,6 +33,9 @@ class UIManager {
     // user guidance bottom left
     this.createGuidance();
 
+    // mobile action bar
+    this.createMobileActionBar();
+
     // initial theme apply
     this.applyTheme();
     this.updateThemeColors(); // ensure colors are populated on start
@@ -96,11 +99,12 @@ class UIManager {
         <span><span style="border: 1px solid #666; padding: 0 4px; border-radius: 2px;">SPACE</span> REMOVE RANDOM AGENT</span>
       </div>
     `);
+    this.guidanceDiv.class('guidance-container pointer-events-auto');
     this.guidanceDiv.parent(this.uiContainer);
     this.guidanceDiv.style('position', 'absolute');
     this.guidanceDiv.style('bottom', '40px');
     this.guidanceDiv.style('left', '40px');
-    this.guidanceDiv.class('pointer-events-auto');
+    // this.guidanceDiv.class('pointer-events-auto'); // redundant and overwrites guidance-container
   }
 
   createStatsCard() {
@@ -248,6 +252,13 @@ class UIManager {
     this.settingsPanel = createDiv(`
       <div class="setting-header">SIMULATION PARAMETERS</div>
       
+      <!-- Mobile Controls (Pause/Reset/Theme) -->
+      <div class="mobile-settings-controls" style="margin-bottom: 24px; justify-content: space-between; gap: 8px;">
+        <button class="mobile-settings-btn" id="btn-pause-mobile" title="Pause"><i class="ph-bold ph-pause"></i></button>
+        <button class="mobile-settings-btn" id="btn-reset-mobile" title="Reset"><i class="ph-bold ph-arrow-counter-clockwise"></i></button>
+        <button class="mobile-settings-btn" id="btn-theme-mobile" title="Theme"><i class="ph-bold ph-sun"></i></button>
+      </div>
+      
       <div class="setting-group">
         <label class="setting-label">Prey Reproduction Rate</label>
         <input type="range" class="setting-slider pointer-events-auto" min="0" max="100" value="15" onchange="simulation.updateConfig('preyRate', this.value)">
@@ -287,7 +298,52 @@ class UIManager {
              const icon = this.musicToggleBtn.elt.querySelector('i');
              if (icon) icon.classList.replace('ph-speaker-high', 'ph-speaker-slash');
         }
+        
+        // Mobile controls listeners
+        const btnPauseM = document.getElementById('btn-pause-mobile');
+        const btnResetM = document.getElementById('btn-reset-mobile');
+        const btnThemeM = document.getElementById('btn-theme-mobile');
+        
+        if (btnPauseM) {
+            btnPauseM.onclick = () => {
+                soundManager.playClick();
+                simulation.togglePause();
+                this.updatePauseIcons();
+            };
+        }
+        if (btnResetM) {
+            btnResetM.onclick = () => {
+                soundManager.playClick();
+                simulation.reset();
+                this.updatePauseIcons();
+            };
+        }
+        if (btnThemeM) {
+            btnThemeM.onclick = () => {
+                soundManager.playClick();
+                this.toggleTheme();
+            };
+        }
     }, 100);
+  }
+
+  updatePauseIcons() {
+      // update both desktop and mobile icons
+      const icons = [
+          document.querySelector('#btn-pause i'),
+          document.querySelector('#btn-pause-mobile i')
+      ];
+      
+      icons.forEach(icon => {
+          if (!icon) return;
+          if (simulation.isPaused) {
+              icon.classList.remove('ph-pause');
+              icon.classList.add('ph-play');
+          } else {
+              icon.classList.remove('ph-play');
+              icon.classList.add('ph-pause');
+          }
+      });
   }
 
   createControls() {
@@ -296,7 +352,7 @@ class UIManager {
       <button class="control-btn" id="btn-reset" title="Reset"><i class="ph ph-arrow-counter-clockwise"></i></button>
       <button class="control-btn" id="btn-theme" title="Theme"><i class="ph ph-sun"></i></button>
     `);
-    this.controlsDiv.class('controls-container pointer-events-auto');
+    this.controlsDiv.class('controls-container desktop-controls pointer-events-auto');
     this.controlsDiv.parent(this.uiContainer);
     this.controlsDiv.style('position', 'absolute');
     this.controlsDiv.style('bottom', '40px');
@@ -308,22 +364,12 @@ class UIManager {
         document.getElementById('btn-pause').onclick = () => {
             soundManager.playClick();
             simulation.togglePause();
-            const icon = document.querySelector('#btn-pause i');
-            if (simulation.isPaused) {
-                icon.classList.replace('ph-pause', 'ph-play');
-            } else {
-                icon.classList.replace('ph-play', 'ph-pause');
-            }
+            this.updatePauseIcons();
         };
         document.getElementById('btn-reset').onclick = () => {
             soundManager.playClick();
             simulation.reset();
-            // reset pause button icon to pause
-            const icon = document.querySelector('#btn-pause i');
-            if (icon) {
-                icon.classList.remove('ph-play');
-                icon.classList.add('ph-pause');
-            }
+            this.updatePauseIcons();
         };
         document.getElementById('btn-theme').onclick = () => {
             soundManager.playClick();
@@ -332,10 +378,42 @@ class UIManager {
     }, 100);
   }
 
+  createMobileActionBar() {
+      this.mobileActionBar = createDiv(`
+        <button class="mobile-action-btn" id="btn-spawn-prey" title="Spawn Prey"><i class="ph-bold ph-bug"></i></button>
+        <button class="mobile-action-btn" id="btn-spawn-predator" title="Spawn Predator"><i class="ph-bold ph-skull"></i></button>
+        <button class="mobile-action-btn" id="btn-remove-agent" title="Remove Agent"><i class="ph-bold ph-trash"></i></button>
+        <div style="width: 1px; height: 24px; background: currentColor; opacity: 0.3;"></div>
+        <button class="mobile-action-btn" id="btn-spawn-obstacle" title="Spawn Obstacle"><i class="ph-bold ph-square"></i></button>
+        <button class="mobile-action-btn" id="btn-remove-obstacle" title="Remove Obstacle"><i class="ph-bold ph-eraser"></i></button>
+      `);
+      this.mobileActionBar.class('mobile-action-bar pointer-events-auto');
+      this.mobileActionBar.parent(this.uiContainer);
+      
+      // event listeners
+      setTimeout(() => {
+          const bindClick = (id, fn) => {
+              const btn = document.getElementById(id);
+              if (btn) {
+                  btn.onclick = () => {
+                      if (window.soundManager) window.soundManager.playClick();
+                      fn();
+                  };
+              }
+          };
+          
+          bindClick('btn-spawn-prey', () => simulation.addPrey(random(width), random(height)));
+          bindClick('btn-spawn-predator', () => simulation.addPredator(random(width), random(height)));
+          bindClick('btn-remove-agent', () => simulation.removeRandomAgent());
+          bindClick('btn-spawn-obstacle', () => simulation.addObstacle(random(width), random(height)));
+          bindClick('btn-remove-obstacle', () => simulation.removeObstacleGlobal());
+      }, 100);
+  }
+
   createFooter() {
     this.footerDiv = createDiv(`
       <a href="https://pax.red" target="_blank" class="footer-link pointer-events-auto">PAX RED <i class="ph-bold ph-arrow-up-right footer-arrow"></i></a>
-      <a href="https://github.com/pax-red/prey-predator-simulation" target="_blank" class="footer-link pointer-events-auto">GITHUB <i class="ph-bold ph-arrow-up-right footer-arrow"></i></a>
+      <a href="https://github.com/vrsmlabs/sy-01-prey-vs-predator" target="_blank" class="footer-link pointer-events-auto">GITHUB <i class="ph-bold ph-arrow-up-right footer-arrow"></i></a>
       <a href="#" id="about-link" class="footer-link pointer-events-auto">ABOUT <i class="ph-bold ph-info footer-arrow"></i></a>
     `);
     this.footerDiv.class('footer pointer-events-auto');
@@ -556,6 +634,14 @@ class UIManager {
     // update warning banner
     if (this.warningBanner) {
         this.warningBanner.style('color', colors.text);
+    }
+
+    // update mobile action bar
+    if (this.mobileActionBar) {
+        const bg = this.theme === 'dark' ? 'rgba(18, 18, 18, 0.9)' : 'rgba(240, 240, 240, 0.9)';
+        this.mobileActionBar.style('background', bg);
+        this.mobileActionBar.style('color', colors.text);
+        this.mobileActionBar.style('border-top', `1px solid ${colors.ui}33`);
     }
   }
   

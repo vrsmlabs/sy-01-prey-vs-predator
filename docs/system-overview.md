@@ -7,8 +7,8 @@ SY-01 is an interactive system study simulating predator–prey dynamics using a
 The system is built on **p5.js** and utilizes a modular architecture to ensure maintainability and clarity. The core logic is separated into distinct components:
 
 -   **Simulation Engine**: Manages the global state, time, and entity lists.
--   **Agent System**: Defines the behaviors of Prey and Predator entities, including genetic inheritance and mutation.
--   **UI Manager**: Handles the overlay interface, user controls, and the Settings Panel (Right Side).
+-   **Agent System**: Defines the behaviors of Prey, Predator, and Obstacle entities, including genetic inheritance and mutation.
+-   **UI Manager**: Handles the overlay interface, user controls, responsive mobile layouts, and the Settings Panel (Right Side).
 -   **Sound Manager**: Manages the generative audio landscape, including dynamic layering and fade transitions.
 -   **Configuration**: Centralized control for simulation parameters via `js/Config.js`, utilizing deep-merge logic for runtime robustness.
 

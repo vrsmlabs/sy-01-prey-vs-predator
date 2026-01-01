@@ -21,13 +21,26 @@ class Prey extends Agent {
     };
   }
 
-  update(preyArray, predators) {
+  update(preyArray, predators, obstacles) {
+    // obstacle interaction
+    if (obstacles && obstacles.length > 0) {
+        for(let obs of obstacles) {
+            obs.checkCollision(this);
+        }
+    }
+
     // flee behavior
     this.flee(predators);
     
     super.update();
     
     // check life
+    // immortality if obstacles present
+    if (obstacles && obstacles.length > 0) {
+        // Extend lifespan so they don't die, but let birthTime stay so they age/mature
+        this.lifespan += deltaTime / 1000;
+    }
+
     if (simulation.timer - this.birthTime > this.lifespan) {
       this.die(preyArray);
     }
@@ -95,6 +108,11 @@ class Prey extends Agent {
         const predatorCount = predators.length;
         let pressure = map(predatorCount, 0, 10, 0.3, 1.5, true); 
         dynamicChance *= pressure;
+    }
+
+    // Obstacle mode growth boost
+    if (obstacles && obstacles.length > 0 && Config.sim.obstacles && Config.sim.obstacles.growthMultiplier) {
+        dynamicChance *= Config.sim.obstacles.growthMultiplier;
     }
 
     if (canReproduce && age > repConfig.ageThreshold && random() < dynamicChance) {

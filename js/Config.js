@@ -27,8 +27,8 @@ const Config = {
   interaction: {
     predatorSpawnDelay: 600,
     maxSamples: {
-        prey: { min: 5, max: 25 },
-        predator: { min: 5, max: 25 }
+        prey: { min: 50, max: 100 },
+        predator: { min: 50, max: 120 }
     }
   },
 
@@ -39,11 +39,11 @@ const Config = {
       size: { min: 5, max: 10 },
       lifespan: { min: 10, max: 25 },
       reproduction: {
-        ageThreshold: 2, // sec
-        chance: 0.0015,
-        cap: 800
+        ageThreshold: 3, // sec
+        chance: 0.0055,
+        cap: 6000
       },
-      speed: 2.5,
+      speed: { min: 2.0, max: 3.0 },
       burstSpeedMultiplier: 2.0, // flee speed boost
       exhaustedSpeedMultiplier: 0.5,
       stamina: {
@@ -54,11 +54,11 @@ const Config = {
       fleeRadius: 160
     },
     predator: {
-      populationCap: 200,
+      populationCap: 6000,
       startCount: { min: 3, max: 100 },
       size: { min: 6, max: 9 },
       lifespan: { min: 60, max: 100 },
-      speed: { min: 2.5, max: 3.0 },
+      speed: { min: 1.5, max: 3.5 },
       burstSpeedMultiplier: 3.0,
       exhaustedSpeedMultiplier: 0.4,
       stamina: {
@@ -67,7 +67,12 @@ const Config = {
           drainRate: 1.0
       },
       huntRadius: 110,
-      starvationTime: { min: 15, max: 30 },
+      hunting: {
+        maxEatsInWindow: 5,
+        eatWindowDuration: 1.0, // seconds
+        cooldownDuration: 10.0 // seconds
+      },
+      starvationTime: { min: 12, max: 30 },
       reproduction: {
           window: 4.0,
           chanceSingle: 0.05,
@@ -75,9 +80,23 @@ const Config = {
           chanceTriple: 0.40,
           chanceMassive: 1.0
       },
-      reproduceThreshold: 2,
+      reproduceThreshold: 1,
       reproduceChance: 0.4
-    }
+    },
+    
+    obstacles: {
+         enabled: false,
+         startTime: 20, // s
+         periodDuration: { min: 20, max: 30 }, 
+         spawnInterval: { min: 3, max: 7 }, 
+         maxCount: 12, //
+         individualLifespan: { min: 10, max: 40 }, // how long each obstacle lasts
+         spawnRate: { min: 2, max: 8 }, // seconds between spawns during active period
+         predatorAvoidance: 1.1, 
+         wallThickness: 5,
+         growthMultiplier: 10.0, // multiplier for reproduction when obstacles are present
+         color: '#808080'
+     }
   },
 
   // dynamics
@@ -139,7 +158,7 @@ const Config = {
         enabled: true,
         lowFpsThreshold: 45, // below this, throttle audio
         criticalFpsThreshold: 30, // below this, minimal audio
-        highPopThreshold: 400, // mute minor sounds above this
+        highPopThreshold: 400, // mute minor sounds aabove this
         nomnomThreshold: 150, // mute feeding sounds above this population
         stackWindowNormal: 200,
         stackWindowThrottled: 600,

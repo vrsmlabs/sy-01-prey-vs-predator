@@ -42,9 +42,13 @@ Predators are the regulatory force. Their goal is to hunt Prey to sustain themse
     -   Predators have a `starvationTime`.
     -   Successfully eating a Prey resets this timer.
     -   Failure to eat within the time limit results in death.
-4.  **Lifespan**:
+4.  **Hunting Cooldown**:
+    -   **Gluttony Penalty**: To prevent a single predator from decimating a cluster of prey instantly, a cooldown is enforced.
+    -   **Rule**: If a predator consumes **5 prey** within **1 second**, it enters a non-hunting "digestive" state.
+    -   **Duration**: The cooldown lasts for **10 seconds**, during which the predator wanders passively and ignores prey.
+5.  **Lifespan**:
     -   Predators age and die naturally (range 60-100s) to prevent immortal agents from dominating the simulation long-term.
-5.  **Reproduction (Streak & Evolution)**:
+6.  **Reproduction (Streak & Evolution)**:
     -   **Evolution Tiers**: Visual indicators of genetic progress:
         -   **Pink**: Base (Gen 0-2)
         -   **Red**: Evolved (Gen 3-5)

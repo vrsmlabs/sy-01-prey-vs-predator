@@ -31,9 +31,21 @@ The UI is minimal and functional, avoiding any decorative elements.
 
 -   **Population Counters**: Real-time count of Prey and Predators (Top Left).
 -   **Timer**: Duration of the current stable simulation (Top Right).
--   **Control Deck**: Icon-based controls for system states (Bottom Center).
--   **Settings Panel**: Configurable parameters for real-time tweaking (Top Right).
+-   **Control Deck (Desktop)**: Icon-based controls for system states (Bottom Center).
+-   **Action Bar (Mobile)**: Large touch targets for spawning/removing agents and obstacles (Bottom Center).
+-   **Settings Panel**: Configurable parameters for real-time tweaking (Top Right). Includes Pause/Reset/Theme toggles on mobile.
 -   **Simulation Report**: A cinematic overlay appearing upon extinction, displaying stats and allowing restart.
+
+## Mobile Experience
+
+On touch devices (Mobile/Tablet), the interface adapts for better usability:
+-   **Action Bar**: Replaces keyboard shortcuts with a dedicated button row at the bottom of the screen.
+    -   **Spawn Prey**: Bug Icon
+    -   **Spawn Predator**: Skull Icon
+    -   **Remove Agent**: Trash Icon
+    -   **Spawn/Remove Obstacle**: Square/Eraser Icons
+-   **Hidden Controls**: Pause, Reset, and Theme toggles are moved inside the **Settings Panel** to reduce clutter.
+-   **Responsive Layout**: Stats and Settings panels resize to fit smaller screens; non-essential tips are hidden.
 
 ## Feedback
 
