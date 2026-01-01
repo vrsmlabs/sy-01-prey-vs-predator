@@ -1,8 +1,9 @@
 # SY-01 Simulation Study Report
 
 **Project:** SY-01 Prey vs. Predator Simulation  
+**Version:** 1.1  
 **Author:** PAX RED  
-**Last Updated:** 2025-12-17
+**Last Updated:** 2026-01-01
 
 ---
 

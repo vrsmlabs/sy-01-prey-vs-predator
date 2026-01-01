@@ -1,4 +1,5 @@
 const Config = {
+  version: '1.1',
 
   theme: {
     current: 'light',
